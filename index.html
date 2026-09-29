@@ -178,6 +178,8 @@ footer{text-align:center;color:var(--faint);font-size:11px;padding:24px;letter-s
   .tl-cell.c{grid-column:3;}
   .tl-cell.empty{display:none;}
   .crossline{display:none;}
+  /* 移动端所有卡片在同一列，统一用节点::after出线（16px跨过10px间距到卡片） */
+  .node::after{display:block !important;}
 
   .colhead{display:none;}
   .period{flex-direction:column;}
