@@ -504,7 +504,7 @@ footer{text-align:center;color:var(--faint);font-size:11px;padding:24px;letter-s
     var side = r.w ? "w" : (r.z ? "z" : "c");
     var obj = r[side];
     var year = fmtYear(obj ? obj.birth : "");
-    var out = '<div class="r tl-row row-' + side + '">'
+    var out = '<div class="r tl-row row-' + side + '" data-pi="' + pi + '" data-ri="' + ri + '">'
       + '<div class="tl-year"><span class="yr ' + side + '">' + esc(year) + '</span></div>'
       + '<div class="tl-axis"><span class="node tl-dot-' + side + '"></span></div>';
     if (side === "w") {
@@ -605,8 +605,13 @@ footer{text-align:center;color:var(--faint);font-size:11px;padding:24px;letter-s
     var row = card.closest(".tl-row");
     var sec = card.closest(".tl-period");
     if (!row || !sec) return;
-    var pi = Array.prototype.indexOf.call(sec.parentNode.children, sec);
-    var ri = Array.prototype.indexOf.call(row.parentNode.children, row);
+    var pi = row.getAttribute("data-pi");
+    var ri = row.getAttribute("data-ri");
+    if (pi == null || ri == null || !DATA.periods[+pi] || DATA.periods[+pi].rows[+ri] === undefined) {
+      pi = Array.prototype.indexOf.call(sec.parentNode.children, sec);
+      ri = Array.prototype.indexOf.call(row.parentNode.children, row);
+      if (!DATA.periods[pi] || !DATA.periods[pi].rows[ri]) return;
+    } else { pi = +pi; ri = +ri; }
     var side = row.className.indexOf("row-w") > -1 ? "w" : (row.className.indexOf("row-z") > -1 ? "z" : "c");
     var o = DATA.periods[pi].rows[ri][side];
     if (!o) return;
@@ -733,6 +738,8 @@ footer{text-align:center;color:var(--faint);font-size:11px;padding:24px;letter-s
   });
 
   if (localStorage.getItem(TOKEN_KEY)) ghToken.value = localStorage.getItem(TOKEN_KEY);
+
+  render();
 })();
 </script>
 </body>
