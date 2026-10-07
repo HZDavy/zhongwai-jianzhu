@@ -35,23 +35,23 @@ body[data-theme="sketch"] .tl-era .pmain,
 body[data-theme="sketch"] .card .name,
 body[data-theme="sketch"] .modal h3{font-family:var(--sketch-font);}
 /* 手绘：卡片、按钮、输入框用多边形圆角 + 虚线轴 */
-body[data-theme="sketch"] .card{border:1.5px solid var(--ink);border-radius:695px 667px 584px 615px / 653px 665px 625px 644px;box-shadow:2px 3px 0 0 rgba(47,47,47,.12);background:var(--card-bg);}
+body[data-theme="sketch"] .card{border:1.5px solid var(--ink);border-radius:3px;box-shadow:2px 3px 0 0 rgba(47,47,47,.12);background:var(--card-bg);}
 body[data-theme="sketch"] .card:hover{transform:rotate(-.4deg) scale(1.01);box-shadow:3px 4px 0 0 rgba(47,47,47,.16);}
 body[data-theme="sketch"] .node{background:var(--ink);border-radius:0;width:7px;height:7px;transform:translate(-50%,0) rotate(8deg);}
 body[data-theme="sketch"] .tl-track::before{border-left:2px dashed var(--line);background:transparent;width:0;}
-body[data-theme="sketch"] .crossline{border-top:2px dashed currentColor;background:transparent;height:0;}
+/* 连接线(crossline)在手绘主题下保持原实线样式，不再覆盖为虚线 */
 body[data-theme="sketch"] .btn{border:1.5px solid var(--ink);border-radius:14px 18px 16px 20px / 18px 16px 20px 14px;background:var(--panel);color:var(--ink);}
 body[data-theme="sketch"] .btn:hover{box-shadow:2px 2px 0 0 var(--ink);transform:translate(-1px,-1px);}
 body[data-theme="sketch"] .searchbox{border:1.5px solid var(--ink);border-radius:18px 14px 20px 16px / 16px 20px 14px 18px;background:var(--panel);}
 body[data-theme="sketch"] .field input,body[data-theme="sketch"] .field textarea,body[data-theme="sketch"] .field select{border:1.5px solid var(--ink);border-radius:12px 14px 11px 15px;background:var(--panel);}
 body[data-theme="sketch"] .modal{border:1.5px solid var(--ink);border-radius:30px 26px 32px 24px / 26px 30px 24px 28px;background:var(--panel);}
 body[data-theme="sketch"] .viewtabs{border:1.5px solid var(--ink);border-radius:16px 20px 14px 18px;background:var(--panel);}
-body[data-theme="sketch"] .toolbar,body[data-theme="sketch"] header.topbar{border:none;border-bottom:2px dashed var(--line);}
-body[data-theme="sketch"] .tl-period,body[data-theme="sketch"] .period{border-bottom:2px dashed var(--line);}
+body[data-theme="sketch"] .toolbar,body[data-theme="sketch"] header.topbar{border:none;border-bottom:1px solid var(--line);}
+body[data-theme="sketch"] .tl-period,body[data-theme="sketch"] .period{border-bottom:1px solid var(--line);}
 body[data-theme="sketch"] .tl-era .pmain{border-bottom:2px solid var(--ink);display:inline-block;padding-bottom:2px;}
 /* 星标用荧光笔感 */
 body[data-theme="sketch"] .star{background:rgba(230,168,23,.35);}
-body[data-theme="sketch"] .tagc{border:none;border-bottom:2px dashed currentColor;background:transparent;}
+body[data-theme="sketch"] .tagc{border:none;border-bottom:1px solid currentColor;background:transparent;}
 *{box-sizing:border-box;}
 html{scroll-behavior:smooth;}
 body{margin:0;font-family:var(--sans);color:var(--ink);background:var(--bg);line-height:1.6;-webkit-font-smoothing:antialiased;font-weight:400;}
