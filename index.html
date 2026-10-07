@@ -233,6 +233,10 @@ footer{text-align:center;color:var(--faint);font-size:11px;padding:24px;letter-s
 .gh-note code{background:var(--line-soft);padding:1px 4px;}
 .token-field{display:flex;gap:8px;}
 .token-field input{flex:1;}
+.token-status{font-size:11.5px;line-height:1.5;margin-top:8px;color:var(--muted);min-height:16px;}
+.token-status.ok{color:#15803d;font-weight:600;}
+.token-status.err{color:#b45309;font-weight:600;}
+.token-status.busy{color:var(--muted);}
 @media (max-width:560px){.field-row{grid-template-columns:1fr;}.modal{padding:18px 16px;}}
 </style>
 </head>
@@ -408,6 +412,7 @@ footer{text-align:center;color:var(--faint);font-size:11px;padding:24px;letter-s
 <!-- ============ 编辑系统：模态 + 令牌 ============ -->
 <div class="gh-note" id="ghNoteWrap" hidden><span class="edit-hint">“保存到 GitHub”需填入仓库访问令牌（GitHub → Settings → Developer settings → Fine-grained/Personal access tokens，勾选该仓库 Contents 读写权限）。令牌只存在你的浏览器本地，不上传。没有令牌可点“导出副本”下载改动后的文件。</span>
   <div class="token-field"><input id="ghToken" type="password" placeholder="GitHub Token（仅本地保存，scope 需含该仓库 Contents 写权限）" autocomplete="off"><button class="btn" type="button" id="ghTokenSave">保存令牌</button></div>
+  <div class="token-status" id="ghTokenStatus"></div>
 </div>
 
 <div class="modal-mask" id="modalMask">
@@ -716,6 +721,52 @@ footer{text-align:center;color:var(--faint);font-size:11px;padding:24px;letter-s
         showStatus((err && err.message) || "保存失败", "err");
       });
   }
+  function setTokenStatus(cls, text) {
+    var el = document.getElementById("ghTokenStatus");
+    if (!el) return;
+    el.className = "token-status" + (cls ? " " + cls : "");
+    el.textContent = text || "";
+  }
+  function verifyToken(token) {
+    token = (token || "").trim();
+    setTokenStatus("busy", "正在校验…");
+    return fetch(ROOT, {
+        headers: { "Authorization": "Bearer " + token, "Accept": "application/vnd.github+json" }
+      })
+      .then(function (r) {
+        if (r.status === 401 || r.status === 403) {
+          setTokenStatus("err", "令牌无效或权限不足（" + r.status + "），请检查令牌是否仍有效。");
+          return null;
+        }
+        if (r.status === 404) {
+          setTokenStatus("err", "无法访问该仓库：令牌没有这个仓库的读取权限，或仓库地址不符。");
+          return null;
+        }
+        if (!r.ok) { setTokenStatus("err", "校验失败（" + r.status + "）。"); return null; }
+        return r.json();
+      })
+      .then(function (repo) {
+        if (!repo) return;
+        return fetch(ROOT + "/contents/index.html", {
+            headers: { "Authorization": "Bearer " + token, "Accept": "application/vnd.github+json" }
+          })
+          .then(function (r) {
+            if (r.status === 404) {
+              setTokenStatus("err", "令牌有效，但仓库根目录没有 index.html，无法保存。");
+              return null;
+            }
+            if (!r.ok) {
+              setTokenStatus("err", "能访问仓库，但读取 index.html 失败（" + r.status + "）。");
+              return null;
+            }
+            setTokenStatus("ok", "✓ 令牌有效：可读取该仓库。写回权限需点“保存到 GitHub”后最终确认。");
+            return r.json();
+          });
+      })
+      .catch(function (err) {
+        setTokenStatus("err", (err && err.message) || "校验异常");
+      });
+  }
 
   editToggle.addEventListener("click", function () { setMode(!editMode); });
   addBtn.addEventListener("click", openAdd);
@@ -725,11 +776,18 @@ footer{text-align:center;color:var(--faint);font-size:11px;padding:24px;letter-s
   mask.addEventListener("click", function (e) { if (e.target === mask) closeModal(); });
   exportBtn.addEventListener("click", exportHTML);
   saveBtn.addEventListener("click", saveToGithub);
+  var verifyTimer = null;
+  ghToken.addEventListener("input", function () {
+    clearTimeout(verifyTimer);
+    if (!ghToken.value.trim()) { setTokenStatus("", ""); return; }
+    verifyTimer = setTimeout(function () { verifyToken(ghToken.value); }, 600);
+  });
   document.getElementById("ghTokenSave").addEventListener("click", function () {
     if (!ghToken.value.trim()) return;
     localStorage.setItem(TOKEN_KEY, ghToken.value.trim());
     ghNote.hidden = true;
     showStatus("令牌已保存到本地，可直接点“保存到 GitHub”");
+    verifyToken(ghToken.value);
   });
   viewTl.addEventListener("click", function (e) {
     if (!editMode) return;
